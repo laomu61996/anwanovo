@@ -4,7 +4,7 @@ import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from colorama import init, Fore, Style
 
-# Initialize colorama
+# Initialize colorama   pip install colorama
 init()
 
 def read_hosts_file():
