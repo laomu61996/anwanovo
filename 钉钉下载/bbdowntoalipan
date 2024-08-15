@@ -1,0 +1,68 @@
+import os
+import subprocess
+import re
+
+# 1. 获取用户输入的参数
+url = input("请输入Bilibili视频的URL: ")
+part = input("请输入下载的分P (输入 'ALL' 表示下载所有分P): ")
+use_aria2 = input("是否使用aria2进行下载? (输入 'yes' 或 'no'): ").strip().lower() == 'yes'
+quality = input("请输入下载画质 (例如 '8K 超高清'): ")
+download_dir = input("请输入工作目录 (下载文件保存的路径): ")
+upload_dir = input("请输入上传到阿里云盘的目录 (例如 '/课程'): ")
+
+# 2. 获取视频标题
+bbdown_info_command = [
+    "BBDown",
+    url,
+    "-info"
+]
+
+# 执行BBDown命令并获取输出
+info_result = subprocess.run(bbdown_info_command, capture_output=True, text=True)
+info_output = info_result.stdout
+
+# 从输出中提取视频标题
+title_match = re.search(r'视频标题: (.+)', info_output)
+if title_match:
+    video_title = title_match.group(1).strip()
+else:
+    raise ValueError("无法从BBDown的输出中提取视频标题")
+
+# 生成唯一的文件夹名称
+unique_folder = os.path.join(download_dir, re.sub(r'[<>:"/\\|?*]', '', video_title))
+
+# 确保文件夹存在
+os.makedirs(unique_folder, exist_ok=True)
+
+# 3. 构建BBDown下载命令
+bbdown_command = [
+    "BBDown",
+    url,
+    "-p", part,
+    "-q", quality,
+    "--work-dir", unique_folder,
+    "-hs",
+    "--upos-host", "upos-sz-mirrorcos.bilivideo.com"  # 固定选项
+]
+
+# 如果选择使用aria2，则添加参数
+if use_aria2:
+    bbdown_command.append("-aria2")
+
+# 打印并执行BBDown命令
+print(f"执行下载命令: {' '.join(bbdown_command)}")
+subprocess.run(bbdown_command)
+
+# 4. 构建并执行aliyunpan上传命令
+aliyunpan_command = [
+    "aliyunpan",
+    "upload",
+    unique_folder,
+    upload_dir
+]
+
+# 打印并执行aliyunpan上传命令
+print(f"执行上传命令: {' '.join(aliyunpan_command)}")
+subprocess.run(aliyunpan_command)
+
+print(f"上传成功：{unique_folder} 到阿里云盘的 {upload_dir} 文件夹")
