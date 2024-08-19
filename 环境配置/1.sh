@@ -37,11 +37,11 @@ rm -rf aliyunpan-$ALIYUNPAN_VERSION-linux-amd64 aliyunpan-$ALIYUNPAN_VERSION-lin
 FFMPEG_URL="https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz"
 wget $FFMPEG_URL
 tar -xf ffmpeg-master-latest-linux64-gpl.tar.xz
-mv ffmpeg-master-latest-linux64-gpl ffmpeg
+mv ffmpeg-master-latest-linux64-gpl /root/ffmpeg
 rm ffmpeg-master-latest-linux64-gpl.tar.xz
 
 # 更新系统环境变量
-echo 'export PATH=$PWD/ffmpeg/bin:$PATH' >> ~/.bashrc
+echo 'export PATH=/root/ffmpeg/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 
 # 使用pip安装biliup和quickjs
