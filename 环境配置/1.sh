@@ -47,13 +47,11 @@ source ~/.bashrc
 # 使用pip安装biliup和quickjs
 pip install biliup quickjs --break-system-packages
 
-# 改用BBR
+# 改用BBR+设置IPv4网络优先
 echo "net.core.default_qdisc=fq" | sudo tee -a /etc/sysctl.conf
 echo "net.ipv4.tcp_congestion_control=bbr" | sudo tee -a /etc/sysctl.conf
-sudo sysctl -p
-
-# 设置IPv4网络优先
 echo "precedence ::ffff:0:0/96  100" | sudo tee -a /etc/gai.conf
+sudo sysctl -p
 
 # 设置时区为Asia/Shanghai
 sudo timedatectl set-timezone Asia/Shanghai
