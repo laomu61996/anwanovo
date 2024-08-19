@@ -42,7 +42,6 @@ rm ffmpeg-master-latest-linux64-gpl.tar.xz
 
 # 更新系统环境变量
 echo 'export PATH=/root/ffmpeg/bin:$PATH' >> ~/.bashrc
-source ~/.bashrc
 
 # 使用pip安装biliup和quickjs
 pip install biliup quickjs --break-system-packages
@@ -52,6 +51,7 @@ echo "net.core.default_qdisc=fq" | sudo tee -a /etc/sysctl.conf
 echo "net.ipv4.tcp_congestion_control=bbr" | sudo tee -a /etc/sysctl.conf
 echo "precedence ::ffff:0:0/96  100" | sudo tee -a /etc/gai.conf
 sudo sysctl -p
+source ~/.bashrc
 
 # 设置时区为Asia/Shanghai
 sudo timedatectl set-timezone Asia/Shanghai
