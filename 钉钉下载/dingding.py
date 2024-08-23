@@ -4,6 +4,10 @@ import subprocess
 import time
 from playwright.sync_api import sync_playwright
 
+#playwright依赖
+#sudo dnf install libxcb libX11 libXext libXrandr libXcomposite libXcursor libXdamage libXfixes libXi gtk3 pango cairo cairo-gobject gdk-pixbuf2 xorg-x11-server-Xvfb libXrender alsa-lib freetype fontconfig
+
+
 # 全局变量
 save_dir = ''
 login_screenshot_path = ''
