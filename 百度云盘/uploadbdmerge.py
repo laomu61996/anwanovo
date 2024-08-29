@@ -12,7 +12,7 @@ def extract_anchor_name_and_date(file_path):
     else:
         return None, None
 
-def convert_and_remove_xml(target_dir):
+def convert_xml_to_ass(target_dir):
     # 遍历目标文件夹中的所有文件，寻找 .xml 文件
     for file_name in os.listdir(target_dir):
         if file_name.endswith(".xml"):
@@ -20,13 +20,9 @@ def convert_and_remove_xml(target_dir):
             ass_file_path = os.path.join(target_dir, file_name.replace(".xml", ".ass"))
             
             # 使用 DanmakuFactory CLI 转换为 .ass 文件，设置字体大小和滚动速度
-            cmd = ['DanmakuFactory', '-o', ass_file_path, '-i', xml_file_path, '-S', '42', '-s', '12.0', '-N', 'HarmonyOS Sans SC Bold']
+            cmd = ['DanmakuFactory', '-o', ass_file_path, '-i', xml_file_path, '-S', '45', '-s', '12.0', '-N', 'HarmonyOS Sans SC Bold']
             subprocess.run(cmd, check=True)
             print(f"已将 {xml_file_path} 转换为 {ass_file_path}")
-            
-            # 删除原始的 .xml 文件
-            os.remove(xml_file_path)
-            print(f"已删除原始的 XML 文件: {xml_file_path}")
 
 def process_video_and_barrage(video_file_path, ass_file_path, output_file_path):
     # 使用 ffmpeg 压制弹幕
@@ -76,8 +72,8 @@ def main():
             print(f"文件已移动到: {target_dir}")
 
     if target_date:
-        # 转换 XML 弹幕文件为 ASS，并删除 XML 文件
-        convert_and_remove_xml(target_dir)
+        # 转换 XML 弹幕文件为 ASS，但保留 XML 文件
+        convert_xml_to_ass(target_dir)
         
         # 遍历目标文件夹中的所有文件，处理视频和弹幕
         video_file_path = None
@@ -93,16 +89,15 @@ def main():
             output_file_path = video_file_path.replace(".mp4", "_带弹幕版.mp4")
             process_video_and_barrage(video_file_path, ass_file_path, output_file_path)
 
-            # 上传到百度网盘并删除本地文件
-            target_cloud_path = f"/录播/{anchor_name}"
-            print(f"开始上传 {output_file_path} 到百度网盘目录 {target_cloud_path}...")
-            cmd = ['BaiduPCS', 'upload', output_file_path, target_cloud_path]
-            subprocess.run(cmd, check=True)
-            os.remove(output_file_path)
-            shutil.rmtree(target_dir)
-            print(f"上传完成并已删除本地文件夹：{target_dir}")
-        else:
-            print("找不到视频文件或弹幕文件，无法完成压制和上传过程。")
+        # 上传整个文件夹到百度网盘
+        target_cloud_path = f"/录播/{anchor_name}"
+        print(f"开始上传文件夹 {target_dir} 到百度网盘目录 {target_cloud_path}...")
+        cmd = ['BaiduPCS', 'upload', target_dir, target_cloud_path]
+        subprocess.run(cmd, check=True)
+        
+        # 删除本地文件夹
+        shutil.rmtree(target_dir)
+        print(f"上传完成并已删除本地文件夹：{target_dir}")
 
 if __name__ == "__main__":
     import sys
