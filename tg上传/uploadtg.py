@@ -1,38 +1,51 @@
-import sys
+import os
+import re
+import shutil
 import subprocess
 
-def main():
-    # 初始化一个列表，用于保存文件路径
-    file_paths = []
+def extract_anchor_name_and_date(file_path):
+    # 使用正则表达式匹配文件名中的主播名和日期
+    match = re.search(r"/([^/]+)(\d{4}-\d{2}-\d{2})T\d{2}_\d{2}_\d{2}", file_path)
+    if match:
+        return match.group(1), match.group(2)
+    else:
+        return None, None
 
-    # 从标准输入逐行读取文件路径
+def main():
+    print("开始处理文件...")
+
+    first_line = True
+    target_date = None
+    anchor_name = None
+
     for line in sys.stdin:
         file_path = line.strip()
-        if file_path:  # 检查是否为空行
-            file_paths.append(file_path)
+        
+        if first_line:
+            anchor_name, target_date = extract_anchor_name_and_date(file_path)
+            if not anchor_name or not target_date:
+                print(f"无法从第一个文件的路径中提取主播名或日期: {file_path}")
+                return
+            first_line = False
 
-    if not file_paths:
-        print("未提供任何文件路径。")
-        return
+        if not first_line:
+            target_dir = os.path.join("./backup", anchor_name, target_date)
+            os.makedirs(target_dir, exist_ok=True)
+            
+            # 移动文件
+            shutil.move(file_path, target_dir)
+            print(f"文件已移动到: {target_dir}")
 
-    # 构建 tdl up 命令
-    tdl_command = ['tdl', 'up']
-    
-    # 添加文件路径
-    for file_path in file_paths:
-        tdl_command.extend(['-p', file_path])
-
-    # 设置其他参数（你给出的参数）
-    tdl_command.extend(['-t', '8', '-s', '524288', '-l', '4', '-c', '2096470375', '--rm'])
-
-    # 使用 subprocess 运行 tdl 命令
-    try:
-        subprocess.run(tdl_command, check=True)
-        print("上传完成。")
-    except subprocess.CalledProcessError as e:
-        print(f"上传过程中出错: {e}")
-    except Exception as e:
-        print(f"发生未知错误: {e}")
+    if target_date and anchor_name:
+        # 使用 tdl 上传到 Telegram 并删除本地文件
+        target_cloud_path = target_dir  # 使用目标目录作为上传路径
+        print(f"开始使用 tdl 上传 {target_dir} 到 Telegram chat ID...")
+        
+        cmd = ['tdl', 'up', '-p', target_dir, '-t', '8', '-s', '524288', '-l', '4', '-c', '2096470375', '--rm']
+        subprocess.run(cmd, check=True)
+        
+        print(f"上传完成并已删除本地文件夹：{target_dir}")
 
 if __name__ == "__main__":
+    import sys
     main()
