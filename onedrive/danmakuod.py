@@ -20,7 +20,7 @@ def convert_xml_to_ass(target_dir):
             ass_file_path = xml_file_path.replace(".xml", ".ass")
 
             # 调用 DanmakuFactory 转换 xml 为 ass
-            cmd = ['DanmakuFactory', '-o', ass_file_path, '-i', xml_file_path, '-S', '45', '-s', '12.0', '--displayarea', '0.4', '-N', 'HarmonyOS Sans SC Bold']
+            cmd = ['DanmakuFactory', '-o', ass_file_path, '-i', xml_file_path, '-S', '45', '-s', '12.0', '--displayarea', '0.3', '-O', '179', '-d', '-1', '-N', 'HarmonyOS Sans SC Bold']
             subprocess.run(cmd, check=True)
             print(f"{xml_file_path} 已转换为 {ass_file_path}")
 
