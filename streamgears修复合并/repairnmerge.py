@@ -82,8 +82,7 @@ def main():
 
     # 获取备份目录中的所有 .flv 文件
     flv_files = [os.path.join(target_dir, f) for f in os.listdir(target_dir) if f.endswith(".flv")]
-    num_files = len(flv_files)
-    
+
     # 修复所有 .flv 文件
     for file in flv_files:
         fix_video(file, luboji_dir)
@@ -94,11 +93,20 @@ def main():
             new_filename = file.replace(".fix_p001", "")
             os.rename(os.path.join(target_dir, file), os.path.join(target_dir, new_filename))
 
+    # 使用标准输入的顺序生成 flv_files.txt
+    flv_files_sorted = [os.path.join(target_dir, os.path.basename(file_path)) for file_path in file_paths]
+
+    temp_list_file = os.path.join(target_dir, "file_list.txt")
+    with open(temp_list_file, 'w') as temp_list:
+        for file in flv_files_sorted:
+            temp_list.write(f"file '{file}'\n")
+
     # 如果文件数量大于或等于设定值，进行合并操作
+    num_files = len(flv_files_sorted)
     if num_files >= 1:
         if num_files == 1:
             # 只有一个文件，直接转换为 .mkv 格式
-            single_file = flv_files[0]
+            single_file = flv_files_sorted[0]
             earliest_base_name = os.path.basename(single_file).replace(".flv", "")
             output_file = os.path.join(target_dir, f"{earliest_base_name}.mkv")
             cmd = f"ffmpeg -i {single_file} -c:v copy -c:a copy {output_file}"
@@ -106,13 +114,14 @@ def main():
             os.remove(single_file)
         else:
             # 多个文件时，合并并转换为 .mkv 格式
-            earliest_file = flv_files[0]  # 假设最早的文件为列表中的第一个文件
-            merge_and_convert(flv_files, earliest_file, target_dir)
+            earliest_file = flv_files_sorted[0]  # 第一个文件是最早的
+            merge_and_convert(flv_files_sorted, earliest_file, target_dir)
 
     # 上传到百度网盘并删除本地备份
     upload_to_baidu(target_dir, anchor_name)
     shutil.rmtree(target_dir)
     print(f"备份已上传到百度网盘并删除本地文件夹：{target_dir}")
+
 
 if __name__ == "__main__":
     main()
