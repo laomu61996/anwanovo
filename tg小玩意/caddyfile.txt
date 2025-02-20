@@ -1,0 +1,24 @@
+xxxx.uord.de {
+
+    # 设置根目录
+    root * /var/www/clash
+    file_server {
+        disable_canonical_uris
+    }
+
+    # 处理 /clash.yaml 文件的访问
+    handle /clash.yaml {
+        # 检查 URL 参数 token 是否有效
+        @valid_token {
+            query token=xk53U0d9Pvv8Wj05gKgRrgWWcLsKd8Gd62fWsj7AtzI
+        }
+
+        # 如果 token 不合法，返回 403
+        respond "Forbidden" 403
+
+        # 只有当 token 合法时才允许访问 /sora.yaml
+        handle @valid_token {
+            file_server
+        }
+    }
+}
